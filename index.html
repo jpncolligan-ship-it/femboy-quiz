@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Femboy Quiz</title>
+  <style>
+    :root {
+      --bg1: #ffe7f3;
+      --bg2: #e7eaff;
+      --card: rgba(255, 255, 255, 0.75);
+      --pink: #ff7ab6;
+      --rose: #ff9ac8;
+      --lavender: #bca8ff;
+      --blue: #a9d3ff;
+      --mint: #baf6d8;
+      --purple: #8e72ff;
+      --text: #4b355a;
+      --muted: #7a5b8f;
+      --shadow: rgba(137, 95, 185, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(900px, 100%);
+      background: rgba(255,255,255,0.45);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 28px;
+      box-shadow: 0 18px 45px var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
+
+    .topbar {
+      background: linear-gradient(90deg, #ffb8d5, #d5c1ff, #bfe6ff);
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.7);
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.82rem;
+      color: rgba(75, 53, 90, 0.8);
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.4);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .content {
+      padding: 30px 28px 22px;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      text-align: center;
+      padding: 18px 10px 8px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      line-height: 1.05;
+      background: linear-gradient(135deg, #ff74b9, #9985ff, #66c7ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.06em;
+    }
+
+    .subtitle {
+      margin: 14px auto 0;
+      max-width: 580px;
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.6;
+    }
+
+    .start-btn, .next-btn, .restart-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 16px 28px;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      color: white;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      box-shadow: 0 10px 24px rgba(160, 100, 255, 0.28);
+    }
+
+    .start-btn:hover, .next-btn:hover, .restart-btn:hover {
+      transform: translateY(-1px) scale(1.01);
+    }
+
+    .question-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .question-counter {
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-bottom: 12px;
+    }
+
+    .question-title {
+      font-size: clamp(1.5rem, 3vw, 2.3rem);
+      line-height: 1.2;
+      margin: 8px 0 24px;
+      color: var(--text);
+    }
+
+    .option-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(170,147,255,0.28);
+      border-radius: 18px;
+      padding: 16px 18px;
+      font-size: 1rem;
+      color: var(--text);
+      cursor: pointer;
+      transition: 0.18s ease;
+      font-weight: 600;
+    }
+
+    .option:hover {
+      transform: translateY(-1px);
+      border-color: rgba(142,114,255,0.5);
+      background: rgba(255,255,255,0.8);
+    }
+
+    .option.selected {
+      background: linear-gradient(135deg, rgba(255,184,213,0.7), rgba(185,197,255,0.8));
+      border-color: rgba(142,114,255,0.6);
+      box-shadow: 0 8px 20px rgba(125, 92, 209, 0.12);
+    }
+
+    .nav {
+      margin-top: 26px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .progress {
+      flex: 1;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.65);
+      overflow: hidden;
+      border: 1px solid rgba(170,147,255,0.15);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--pink), var(--lavender), var(--blue));
+      border-radius: inherit;
+      transition: width 0.25s ease;
+    }
+
+    .result-card {
+      max-width: 700px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.68);
+      border: 1px solid rgba(170,147,255,0.25);
+      border-radius: 30px;
+      padding: 28px 22px;
+      text-align: center;
+      box-shadow: 0 18px 35px rgba(123, 92, 202, 0.14);
+    }
+
+    .result-score {
+      font-size: clamp(2.8rem, 8vw, 5rem);
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--pink), var(--purple), var(--blue));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin: 6px 0 18px;
+    }
+
+    .result-message {
+      font-size: clamp(1.2rem, 2.5vw, 2rem);
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .result-text {
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.7;
+      margin: 0 auto 20px;
+      max-width: 520px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 600px) {
+      .content { padding: 22px 18px 18px; }
+      .topbar { padding: 16px 18px; }
+      .nav { flex-direction: column; align-items: stretch; }
+      .progress { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">Femboy Quiz</div>
+      <div class="badge">Cute Energy Meter</div>
+    </div>
+
+    <div class="content">
+      <section id="start-screen" class="screen active">
+        <div class="hero">
+          <h1>How much<br>femboy energy?</h1>
+          <p class="subtitle">
+            Take this adorable little quiz and discover your pastel power, soft charm, and cutest vibe.
+          </p>
+        </div>
+
+        <div style="display:flex; justify-content:center; margin-top:24px;">
+          <button class="start-btn" id="start-btn">Start Quiz</button>
+        </div>
+      </section>
+
+      <section id="quiz-screen" class="screen">
+        <div class="question-wrap">
+          <div id="question-counter" class="question-counter">Question 1 / 20</div>
+          <h2 id="question-title" class="question-title"></h2>
+
+          <div id="options" class="option-list"></div>
+
+          <div class="nav">
+            <div class="progress">
+              <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <button class="next-btn" id="next-btn">Next</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="result-screen" class="screen">
+        <div class="result-card">
+          <div class="result-score" id="result-score">0%</div>
+          <div class="result-message" id="result-message">Soft and sweet</div>
+          <p class="result-text" id="result-text"></p>
+          <button class="restart-btn" id="restart-btn">Play Again</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        q: "What kind of outfit instantly makes you feel cutest?",
+        options: [
+          { text: "Pastel cardigan + pleated skirt", score: 4 },
+          { text: "Oversized sweater + cute shorts", score: 3 },
+          { text: "Cozy hoodie + jeans", score: 2 },
+          { text: "Anything comfy and effortless", score: 1 }
+        ]
+      },
+      {
+        q: "How do you usually style your hair?",
+        options: [
+          { text: "Soft curls or fluffy waves", score: 4 },
+          { text: "Neat with a little volume", score: 3 },
+          { text: "Simple and low-maintenance", score: 2 },
+          { text: "I don’t really think about it", score: 1 }
+        ]
+      },
+      {
+        q: "Which color palette feels most like you?",
+        options: [
+          { text: "Pink, lavender, baby blue", score: 4 },
+          { text: "Cream, blush, lilac", score: 3 },
+          { text: "Neutral with a pop of color", score: 2 },
+          { text: "Dark or minimal", score: 1 }
+        ]
+      },
+      {
+        q: "How would you describe your vibe?",
+        options: [
+          { text: "Cute, delicate, and charming", score: 4 },
+          { text: "Sweet and approachable", score: 3 },
+          { text: "Calm and stylish", score: 2 },
+          { text: "Low-key and mysterious", score: 1 }
+        ]
+      },
+      {
+        q: "What kind of makeup look do you like most?",
+        options: [
+          { text: "Glossy lips and soft blush", score: 4 },
+          { text: "A little eyeliner and rosy tones", score: 3 },
+          { text: "Simple and natural", score: 2 },
+          { text: "I don’t wear makeup", score: 1 }
+        ]
+      },
+      {
+        q: "Which pose feels the most adorable to you?",
+        options: [
+          { text: "Hands tucked in sleeves, shy smile", score: 4 },
+          { text: "Cute little side angle", score: 3 },
+          { text: "Casual relaxed pose", score: 2 },
+          { text: "Confident and bold stance", score: 1 }
+        ]
+      },
+      {
+        q: "How do you respond to attention?",
+        options: [
+          { text: "Blush and giggle a little", score: 4 },
+          { text: "Smile politely and feel flattered", score: 3 },
+          { text: "Stay calm but happy", score: 2 },
+          { text: "I don’t mind or I ignore it", score: 1 }
+        ]
+      },
+      {
+        q: "If you had a cute nickname, what would it be?",
+        options: [
+          { text: "Bunny, Peach, or Sweetheart", score: 4 },
+          { text: "Honey, Baby, or Pudding", score: 3 },
+          { text: "Cute little nickname", score: 2 },
+          { text: "I’d rather be called by my name", score: 1 }
+        ]
+      },
+      {
+        q: "Which type of accessory matches you best?",
+        options: [
+          { text: "Pearls, bows, or charms", score: 4 },
+          { text: "Delicate rings and bracelets", score: 3 },
+          { text: "Simple jewelry", score: 2 },
+          { text: "No accessories needed", score: 1 }
+        ]
+      },
+      {
+        q: "What kind of environment makes you feel most at home?",
+        options: [
+          { text: "A pastel bedroom and soft lighting", score: 4 },
+          { text: "A cozy café with cute decor", score: 3 },
+          { text: "A comfy apartment with good vibes", score: 2 },
+          { text: "Any place with friends around", score: 1 }
+        ]
+      },
+      {
+        q: "How do you usually walk into a room?",
+        options: [
+          { text: "A little shy but adorable", score: 4 },
+          { text: "Warm and friendly", score: 3 },
+          { text: "Relaxed and confident", score: 2 },
+          { text: "Like I own the room", score: 1 }
+        ]
+      },
+      {
+        q: "What is your ideal date vibe?",
+        options: [
+          { text: "A dreamy café date and tiny gifts", score: 4 },
+          { text: "Cute dinner and conversation", score: 3 },
+          { text: "A chill outing somewhere cozy", score: 2 },
+          { text: "Anything spontaneous", score: 1 }
+        ]
+      },
+      {
+        q: "What type of music fits you best?",
+        options: [
+          { text: "Soft pop, dreamy synth, pastel vibes", score: 4 },
+          { text: "Cute indie and mellow songs", score: 3 },
+          { text: "A mix of chill and upbeat", score: 2 },
+          { text: "Whatever feels good", score: 1 }
+        ]
+      },
+      {
+        q: "How confident are you in your style?",
+        options: [
+          { text: "Very confident and proud", score: 4 },
+          { text: "Pretty confident with a blush", score: 3 },
+          { text: "A little unsure but trying", score: 2 },
+          { text: "I’m still figuring it out", score: 1 }
+        ]
+      },
+      {
+        q: "Which phrase sounds most like you?",
+        options: [
+          { text: "I’m adorable, and I know it", score: 4 },
+          { text: "I’m sweet, but I’m still cool", score: 3 },
+          { text: "I’m just being myself", score: 2 },
+          { text: "I’m more chill than cute", score: 1 }
+        ]
+      },
+      {
+        q: "What’s your ideal mood?",
+        options: [
+          { text: "Soft, dreamy, and flirty", score: 4 },
+          { text: "Sweet and gentle", score: 3 },
+          { text: "Laid-back and happy", score: 2 },
+          { text: "Focused and serious", score: 1 }
+        ]
+      },
+      {
+        q: "Which aesthetic feels like home?",
+        options: [
+          { text: "Pastel goth / kawaii / dreamy", score: 4 },
+          { text: "Soft y2k and romantic", score: 3 },
+          { text: "Minimal but cute", score: 2 },
+          { text: "No specific aesthetic", score: 1 }
+        ]
+      },
+      {
+        q: "How do you react when someone compliments you?",
+        options: [
+          { text: "Smile big and blush instantly", score: 4 },
+          { text: "Feel happy and a little shy", score: 3 },
+          { text: "Say thank you and move on", score: 2 },
+          { text: "I’d probably joke it off", score: 1 }
+        ]
+      },
+      {
+        q: "What kind of little detail makes you feel extra cute?",
+        options: [
+          { text: "A bow, gloss, or tiny charm", score: 4 },
+          { text: "A soft fragrance or pastel notebook", score: 3 },
+          { text: "Anything cozy and aesthetic", score: 2 },
+          { text: "Not much matters to me", score: 1 }
+        ]
+      },
+      {
+        q: "If you had to pick your ultimate vibe, it would be:",
+        options: [
+          { text: "Cute angelic sweetheart", score: 4 },
+          { text: "Soft pretty prince charming", score: 3 },
+          { text: "Chill and adorable", score: 2 },
+          { text: "I’m my own kind of cute", score: 1 }
+        ]
+      }
+    ];
+
+    const startScreen = document.getElementById("start-screen");
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+
+    const startBtn = document.getElementById("start-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const restartBtn = document.getElementById("restart-btn");
+
+    const questionCounter = document.getElementById("question-counter");
+    const questionTitle = document.getElementById("question-title");
+    const optionsContainer = document.getElementById("options");
+    const progressBar = document.getElementById("progress-bar");
+
+    const resultScore = document.getElementById("result-score");
+    const resultMessage = document.getElementById("result-message");
+    const resultText = document.getElementById("result-text");
+
+    let currentQuestion = 0;
+    let totalScore = 0;
+    let selectedAnswers = [];
+
+    function showScreen(screen) {
+      startScreen.classList.remove("active");
+      quizScreen.classList.remove("active");
+      resultScreen.classList.remove("active");
+      screen.classList.add("active");
+    }
+
+    function loadQuestion() {
+      const question = questions[currentQuestion];
+      questionCounter.textContent = `Question ${currentQuestion + 1} / ${questions.length}`;
+      questionTitle.textContent = question.q;
+
+      optionsContainer.innerHTML = "";
+      question.options.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.className = "option";
+        button.textContent = option.text;
+
+        const selected = selectedAnswers[currentQuestion] === index;
+        if (selected) button.classList.add("selected");
+
+        button.addEventListener("click", () => {
+          selectedAnswers[currentQuestion] = index;
+          totalScore = 0;
+          selectedAnswers.forEach((answerIndex, qIndex) => {
+            if (answerIndex !== undefined) {
+              totalScore += questions[qIndex].options[answerIndex].score;
+            }
+          });
+
+          const optionButtons = document.querySelectorAll(".option");
+          optionButtons.forEach(btn => btn.classList.remove("selected"));
+          button.classList.add("selected");
+        });
+
+        optionsContainer.appendChild(button);
+      });
+
+      const progress = ((currentQuestion + 1) / questions.length) * 100;
+      progressBar.style.width = `${progress}%`;
+
+      nextBtn.textContent = currentQuestion === questions.length - 1 ? "See Results" : "Next";
+    }
+
+    function nextQuestion() {
+      if (selectedAnswers[currentQuestion] === undefined) {
+        return;
+      }
+
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      const maxPossible = questions.length * 4;
+      const percent = Math.round((totalScore / maxPossible) * 100);
+
+      resultScore.textContent = `${percent}%`;
+      resultMessage.textContent = getResultTitle(percent);
+      resultText.textContent = getResultText(percent);
+
+      showScreen(resultScreen);
+    }
+
+    function getResultTitle(percent) {
+      if (percent >= 85) return "Maximum Femboy Charm";
+      if (percent >= 70) return "Very Pretty and Soft";
+      if (percent >= 55) return "Cute and Confident";
+      if (percent >= 35) return "Sweet with a Soft Glow";
+      return "A Little Baby Cute";
+    }
+
+    function getResultText(percent) {
+      if (percent >= 85) {
+        return "You’re basically a pastel dream. Your look, aura, and style scream soft romance, cute confidence, and irresistible charm.";
+      }
+      if (percent >= 70) {
+        return "You’ve got a strong adorable presence. You carry that comforting, pretty, soft energy in a way that feels effortlessly cute.";
+      }
+      if (percent >= 55) {
+        return "You’ve got a nice balance of sweetness and personality. Your vibe is cute, stylish, and very charming without trying too hard.";
+      }
+      if (percent >= 35) {
+        return "You have a lovely soft side with a more subtle style. You’re definitely cute in your own quiet, charming way.";
+      }
+      return "You’ve got a little tiny pastel spark. Your style is sweet and gentle, and your cutest energy is just starting to bloom.";
+    }
+
+    startBtn.addEventListener("click", () => {
+      selectedAnswers = Array(questions.length).fill(undefined);
+      totalScore = 0;
+      currentQuestion = 0;
+      loadQuestion();
+      showScreen(quizScreen);
+    });
+
+    nextBtn.addEventListener("click", nextQuestion);
+
+    restartBtn.addEventListener("click", () => {
+      selectedAnswers = Array(questions.length).fill(undefined);
+      totalScore = 0;
+      currentQuestion = 0;
+      showScreen(startScreen);
+    });
+  </script>
+</body>
+</html>
